@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const display = document.querySelector('.display');
+    const displaySection = document.querySelector('.display-section');
     const buttons = document.querySelector('.button-grid');
     const gtIndicator = document.querySelector('.gt-indicator');
     const memoryIndicator = document.querySelector('.memory-indicator');
@@ -12,29 +13,33 @@ document.addEventListener('DOMContentLoaded', () => {
     let grandTotal = 0;
     let shouldResetDisplay = false;
 
-    const formatNumber = (numStr) => {
-        if (typeof numStr !== 'string' || numStr.includes('e')) return numStr;
-        const [integerPart, decimalPart] = numStr.split('.');
-        const formattedIntegerPart = parseFloat(integerPart).toLocaleString('en-US', { maximumFractionDigits: 0 });
-        return decimalPart !== undefined ? `${formattedIntegerPart}.${decimalPart}` : formattedIntegerPart;
+    const adjustFontSize = () => {
+        const baseFontSize = 52; // CSS의 --base-font-size와 동일한 값
+        display.style.fontSize = `${baseFontSize}px`;
+
+        // 텍스트가 컨테이너를 넘어가는지 확인
+        if (display.scrollWidth > displaySection.clientWidth) {
+            // 넘어간다면, 비율을 계산하여 폰트 크기를 줄임
+            const ratio = displaySection.clientWidth / display.scrollWidth;
+            const newSize = Math.floor(baseFontSize * ratio);
+            display.style.fontSize = `${newSize}px`;
+        }
     };
 
     const updateDisplay = () => {
         let displayValue;
-        // 숫자가 아닐 경우(Error 등) 포매팅하지 않음
         if (isNaN(parseFloat(currentInput))) {
             displayValue = currentInput;
         } else {
-            // 지수 표기법 변환 로직 (14자리 초과 시)
-            if (currentInput.replace(/[-.]/g, '').length > 14) {
+            if (currentInput.replace(/[-.]/g, '').length > 14 && currentInput.includes('e') === false) {
                 displayValue = parseFloat(currentInput).toExponential(8);
             } else {
-                // 일반 숫자 포매팅
                 const [integer, decimal] = currentInput.split('.');
-                displayValue = `${parseInt(integer, 10).toLocaleString('en-US')}${decimal !== undefined ? `.${decimal}` : ''}`;
+                displayValue = `${parseFloat(integer).toLocaleString('en-US')}${decimal !== undefined ? `.${decimal}` : ''}`;
             }
         }
         display.textContent = displayValue;
+        adjustFontSize(); // 디스플레이 업데이트 후 폰트 크기 조절
 
         gtIndicator.style.opacity = grandTotal !== 0 ? '1' : '0';
         memoryIndicator.style.opacity = memory !== 0 ? '1' : '0';
@@ -44,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let result;
         const prev = parseFloat(previousInput);
         const current = parseFloat(currentInput);
-
         if (isNaN(prev) || isNaN(current)) return;
 
         switch (operator) {
@@ -61,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
             default: return;
         }
         currentInput = result.toString();
-        // grandTotal += result; // GT는 = 누를때마다 더해지는게 아님.
         operator = null;
         previousInput = '';
         shouldResetDisplay = true;
@@ -89,9 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentInput = '0';
             shouldResetDisplay = false;
         }
-
-        // 소수점을 포함한 전체 길이가 14자리 이상이면 입력 불가
-        if (currentInput.length >= 14) return;
+        if (currentInput.replace(/[-.]/g, '').length >= 14) return;
 
         if (key === '.') {
             if (!currentInput.includes('.')) {
@@ -118,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (keyClass.contains('equal-btn')) {
             if (operator) {
                 calculate();
-                grandTotal += parseFloat(currentInput); // = 을 누른 최종 결과를 GT에 더함
+                grandTotal += parseFloat(currentInput);
             }
         } else if (key === 'AC') {
             clearAll();
@@ -134,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (key === '+/-') {
             currentInput = (parseFloat(currentInput) * -1).toString();
         } else if (key === '%') {
-            // 퍼센트 계산은 연산자가 있을 때와 없을 때 다르게 동작
             const baseValue = parseFloat(previousInput) || 1;
             const percentage = parseFloat(currentInput);
             currentInput = (baseValue * (percentage / 100)).toString();
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
             shouldResetDisplay = true;
         } else if (key === 'M+') {
             memory += parseFloat(currentInput);
-            shouldResetDisplay = true; // M+, M- 후 새 숫자 입력 시작
+            shouldResetDisplay = true;
         } else if (key === 'M-') {
             memory -= parseFloat(currentInput);
             shouldResetDisplay = true;
@@ -161,6 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDisplay();
     });
 
-    // Initialize
+    // Initialize with font adjustment
     updateDisplay();
+    
+    // Resize event listener for responsive font size
+    window.addEventListener('resize', adjustFontSize);
 });

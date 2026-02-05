@@ -8,6 +8,7 @@
     --operator-bg: #ff9f43;
     --operator-text-color: #ffffff;
     --function-bg: #d4d4d2;
+    --base-font-size: 52px; /* 기본 폰트 크기 변수 선언 */
 }
 
 * {
@@ -53,14 +54,15 @@ body {
 }
 
 .display {
-    font-size: 52px;
+    font-size: var(--base-font-size);
     font-weight: 300;
     color: var(--text-color);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: clip;
-    min-height: 65px;
-    line-height: 65px;
+    min-height: calc(var(--base-font-size) + 13px);
+    line-height: calc(var(--base-font-size) + 13px);
+    transition: font-size 0.1s ease-in-out;
 }
 
 .gt-indicator, .memory-indicator, .error-indicator {
@@ -131,9 +133,4 @@ button:disabled { background-color: #e0e0e0; cursor: not-allowed; opacity: 0.5; 
         gap: 10px;
     }
     button { height: 60px; font-size: 20px; }
-    .display {
-        font-size: 14vw;
-        min-height: calc(14vw + 20px);
-        line-height: calc(14vw + 20px);
-    }
 }
