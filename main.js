@@ -20,26 +20,30 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const updateDisplay = () => {
-        let formattedInput = formatNumber(currentInput);
-        const unformattedLength = currentInput.replace(/[.,]/g, '').length;
-
-        if (unformattedLength > 14) {
-             if (parseFloat(currentInput) !== 0) {
-                formattedInput = parseFloat(currentInput).toExponential(8);
+        let displayValue;
+        // 숫자가 아닐 경우(Error 등) 포매팅하지 않음
+        if (isNaN(parseFloat(currentInput))) {
+            displayValue = currentInput;
+        } else {
+            // 지수 표기법 변환 로직 (14자리 초과 시)
+            if (currentInput.replace(/[-.]/g, '').length > 14) {
+                displayValue = parseFloat(currentInput).toExponential(8);
             } else {
-                formattedInput = formatNumber(currentInput.substring(0, 15));
-             }
+                // 일반 숫자 포매팅
+                const [integer, decimal] = currentInput.split('.');
+                displayValue = `${parseInt(integer, 10).toLocaleString('en-US')}${decimal !== undefined ? `.${decimal}` : ''}`;
+            }
         }
+        display.textContent = displayValue;
 
-        display.textContent = formattedInput;
         gtIndicator.style.opacity = grandTotal !== 0 ? '1' : '0';
         memoryIndicator.style.opacity = memory !== 0 ? '1' : '0';
     };
 
     const calculate = () => {
         let result;
-        const prev = parseFloat(previousInput.replace(/,/g, ''));
-        const current = parseFloat(currentInput.replace(/,/g, ''));
+        const prev = parseFloat(previousInput);
+        const current = parseFloat(currentInput);
 
         if (isNaN(prev) || isNaN(current)) return;
 
@@ -57,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
             default: return;
         }
         currentInput = result.toString();
-        grandTotal += result;
+        // grandTotal += result; // GT는 = 누를때마다 더해지는게 아님.
         operator = null;
         previousInput = '';
         shouldResetDisplay = true;
@@ -79,6 +83,24 @@ document.addEventListener('DOMContentLoaded', () => {
         operator = null;
         shouldResetDisplay = false;
     };
+    
+    const handleNumberInput = (key) => {
+        if (shouldResetDisplay) {
+            currentInput = '0';
+            shouldResetDisplay = false;
+        }
+
+        // 소수점을 포함한 전체 길이가 14자리 이상이면 입력 불가
+        if (currentInput.length >= 14) return;
+
+        if (key === '.') {
+            if (!currentInput.includes('.')) {
+                currentInput += '.';
+            }
+        } else {
+            currentInput = currentInput === '0' ? key : currentInput + key;
+        }
+    };
 
     buttons.addEventListener('click', (e) => {
         if (!e.target.matches('button') || e.target.disabled) return;
@@ -87,44 +109,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const keyClass = e.target.classList;
 
         if (keyClass.contains('number-btn')) {
-            if (shouldResetDisplay) {
-                currentInput = '0';
-                shouldResetDisplay = false;
-            }
-            const unformattedInput = currentInput.replace(/[.,]/g, '');
-            if (unformattedInput.length < 14) {
-                currentInput = currentInput === '0' ? key : currentInput + key;
-            }
-        } else if (keyClass.contains('decimal-btn')) {
-            if (shouldResetDisplay) currentInput = '0';
-            if (!currentInput.includes('.') && currentInput.length < 14) {
-                currentInput += '.';
-            }
+            handleNumberInput(key);
         } else if (keyClass.contains('operator-btn') && !keyClass.contains('equal-btn')) {
             if (operator && !shouldResetDisplay) calculate();
             previousInput = currentInput;
             operator = key;
             shouldResetDisplay = true;
         } else if (keyClass.contains('equal-btn')) {
-            if (operator) calculate();
+            if (operator) {
+                calculate();
+                grandTotal += parseFloat(currentInput); // = 을 누른 최종 결과를 GT에 더함
+            }
         } else if (key === 'AC') {
             clearAll();
             grandTotal = 0;
         } else if (key === 'C') {
             currentInput = '0';
         } else if (key === '√') {
-            const value = parseFloat(currentInput.replace(/,/g, ''));
+            const value = parseFloat(currentInput);
             if (value >= 0) {
                 currentInput = Math.sqrt(value).toString();
                 shouldResetDisplay = true;
             }
         } else if (key === '+/-') {
-            currentInput = (parseFloat(currentInput.replace(/,/g, '')) * -1).toString();
+            currentInput = (parseFloat(currentInput) * -1).toString();
         } else if (key === '%') {
-            currentInput = (parseFloat(currentInput.replace(/,/g, '')) / 100).toString();
+            // 퍼센트 계산은 연산자가 있을 때와 없을 때 다르게 동작
+            const baseValue = parseFloat(previousInput) || 1;
+            const percentage = parseFloat(currentInput);
+            currentInput = (baseValue * (percentage / 100)).toString();
             shouldResetDisplay = true;
         } else if (keyClass.contains('correction-btn')) {
-            if (currentInput === 'Error') return;
+            if (currentInput === 'Error' || shouldResetDisplay) return;
             currentInput = currentInput.length > 1 ? currentInput.slice(0, -1) : '0';
         } else if (key === 'MC') {
             memory = 0;
@@ -132,9 +148,11 @@ document.addEventListener('DOMContentLoaded', () => {
             currentInput = memory.toString();
             shouldResetDisplay = true;
         } else if (key === 'M+') {
-            memory += parseFloat(currentInput.replace(/,/g, ''));
+            memory += parseFloat(currentInput);
+            shouldResetDisplay = true; // M+, M- 후 새 숫자 입력 시작
         } else if (key === 'M-') {
-            memory -= parseFloat(currentInput.replace(/,/g, ''));
+            memory -= parseFloat(currentInput);
+            shouldResetDisplay = true;
         } else if (keyClass.contains('gt-btn')) {
             currentInput = grandTotal.toString();
             shouldResetDisplay = true;
