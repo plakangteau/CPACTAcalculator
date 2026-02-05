@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     const display = document.querySelector('.display');
     const buttons = document.querySelector('.button-grid');
+    const gtIndicator = document.querySelector('.gt-indicator');
     const memoryIndicator = document.querySelector('.memory-indicator');
     const errorIndicator = document.querySelector('.error-indicator');
-    const gtIndicator = document.querySelector('.gt-indicator');
 
     let currentInput = '0';
     let previousInput = '';
@@ -13,28 +13,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let shouldResetDisplay = false;
 
     const formatNumber = (numStr) => {
-        if (typeof numStr !== 'string' || numStr.includes('e')) return numStr; 
-
+        if (typeof numStr !== 'string' || numStr.includes('e')) return numStr;
         const [integerPart, decimalPart] = numStr.split('.');
         const formattedIntegerPart = parseFloat(integerPart).toLocaleString('en-US', { maximumFractionDigits: 0 });
-        
         return decimalPart !== undefined ? `${formattedIntegerPart}.${decimalPart}` : formattedIntegerPart;
     };
 
     const updateDisplay = () => {
         let formattedInput = formatNumber(currentInput);
-        if (formattedInput.replace(/,/g, '').length > 14) {
-             if (parseFloat(currentInput) > 0) {
-                formattedInput = parseFloat(currentInput).toExponential(9);
+        const unformattedLength = currentInput.replace(/[.,]/g, '').length;
+
+        if (unformattedLength > 14) {
+             if (parseFloat(currentInput) !== 0) {
+                formattedInput = parseFloat(currentInput).toExponential(8);
             } else {
-                // Handle cases where chopping the number is better than showing zero
-                const unformatted = currentInput.replace(/,/g, '');
-                formattedInput = formatNumber(unformatted.substring(0, 14));
+                formattedInput = formatNumber(currentInput.substring(0, 15));
              }
         }
+
         display.textContent = formattedInput;
-        memoryIndicator.style.opacity = memory !== 0 ? '1' : '0';
         gtIndicator.style.opacity = grandTotal !== 0 ? '1' : '0';
+        memoryIndicator.style.opacity = memory !== 0 ? '1' : '0';
     };
 
     const calculate = () => {
@@ -62,13 +61,12 @@ document.addEventListener('DOMContentLoaded', () => {
         operator = null;
         previousInput = '';
         shouldResetDisplay = true;
-        updateDisplay();
     };
 
     const showError = () => {
         currentInput = 'Error';
-        updateDisplay();
         errorIndicator.style.opacity = '1';
+        updateDisplay();
         setTimeout(() => {
             clearAll();
             errorIndicator.style.opacity = '0';
@@ -80,13 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
         previousInput = '';
         operator = null;
         shouldResetDisplay = false;
-        updateDisplay();
-    };
-
-    const clearEntry = () => {
-        currentInput = '0';
-        shouldResetDisplay = false;
-        updateDisplay();
     };
 
     buttons.addEventListener('click', (e) => {
@@ -100,34 +91,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentInput = '0';
                 shouldResetDisplay = false;
             }
-            
-            const unformattedInput = currentInput.replace(/\.|,/g, '');
+            const unformattedInput = currentInput.replace(/[.,]/g, '');
             if (unformattedInput.length < 14) {
-                if (currentInput === '0') currentInput = key; 
-                else currentInput += key;
+                currentInput = currentInput === '0' ? key : currentInput + key;
             }
         } else if (keyClass.contains('decimal-btn')) {
-             if (shouldResetDisplay) {
-                currentInput = '0';
-                shouldResetDisplay = false;
-            }
+            if (shouldResetDisplay) currentInput = '0';
             if (!currentInput.includes('.') && currentInput.length < 14) {
                 currentInput += '.';
             }
-        } else if (keyClass.contains('operator-btn') && key !== '=') {
-            if (operator && !shouldResetDisplay) {
-                calculate();
-            }
+        } else if (keyClass.contains('operator-btn') && !keyClass.contains('equal-btn')) {
+            if (operator && !shouldResetDisplay) calculate();
             previousInput = currentInput;
             operator = key;
             shouldResetDisplay = true;
-        } else if (key === '=') {
-            if(operator) calculate();
+        } else if (keyClass.contains('equal-btn')) {
+            if (operator) calculate();
         } else if (key === 'AC') {
             clearAll();
             grandTotal = 0;
         } else if (key === 'C') {
-            clearEntry();
+            currentInput = '0';
         } else if (key === '√') {
             const value = parseFloat(currentInput.replace(/,/g, ''));
             if (value >= 0) {
@@ -139,13 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (key === '%') {
             currentInput = (parseFloat(currentInput.replace(/,/g, '')) / 100).toString();
             shouldResetDisplay = true;
-        } else if (key === '지우기') {
-            if(currentInput === 'Error') return;
-            if (currentInput.length > 1) {
-                currentInput = currentInput.slice(0, -1);
-            } else {
-                currentInput = '0';
-            }
+        } else if (keyClass.contains('correction-btn')) {
+            if (currentInput === 'Error') return;
+            currentInput = currentInput.length > 1 ? currentInput.slice(0, -1) : '0';
         } else if (key === 'MC') {
             memory = 0;
         } else if (key === 'MR') {
@@ -155,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
             memory += parseFloat(currentInput.replace(/,/g, ''));
         } else if (key === 'M-') {
             memory -= parseFloat(currentInput.replace(/,/g, ''));
-        } else if (key === 'GT') {
+        } else if (keyClass.contains('gt-btn')) {
             currentInput = grandTotal.toString();
             shouldResetDisplay = true;
         }
