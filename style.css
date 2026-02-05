@@ -8,7 +8,8 @@
     --operator-bg: #ff9f43;
     --operator-text-color: #ffffff;
     --function-bg: #d4d4d2;
-    --base-font-size: 52px; /* 기본 폰트 크기 변수 선언 */
+    --segment-off-color: #ddd;
+    --segment-on-color: #333;
 }
 
 * {
@@ -45,24 +46,34 @@ body {
 
 .display-section {
     background-color: var(--display-bg);
-    padding: 10px 20px;
+    padding: 10px 15px;
     border-radius: 15px;
     margin-bottom: 25px;
-    text-align: right;
     position: relative;
     overflow: hidden;
+    min-height: 70px;
 }
 
 .display {
-    font-size: var(--base-font-size);
-    font-weight: 300;
-    color: var(--text-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: clip;
-    min-height: calc(var(--base-font-size) + 13px);
-    line-height: calc(var(--base-font-size) + 13px);
-    transition: font-size 0.1s ease-in-out;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 50px;
+}
+
+.display-inner {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 2px;
+    width: 100%;
+}
+
+seven-segment-digit {
+    height: 50px;
+    flex-basis: 0;
+    flex-grow: 1;
+    max-width: 26px; /* SVG original width */
 }
 
 .gt-indicator, .memory-indicator, .error-indicator {

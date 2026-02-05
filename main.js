@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const display = document.querySelector('.display');
-    const displaySection = document.querySelector('.display-section');
+    const displayDigits = document.querySelectorAll('seven-segment-digit');
     const buttons = document.querySelector('.button-grid');
     const gtIndicator = document.querySelector('.gt-indicator');
     const memoryIndicator = document.querySelector('.memory-indicator');
@@ -13,33 +12,58 @@ document.addEventListener('DOMContentLoaded', () => {
     let grandTotal = 0;
     let shouldResetDisplay = false;
 
-    const adjustFontSize = () => {
-        const baseFontSize = 52; // CSS의 --base-font-size와 동일한 값
-        display.style.fontSize = `${baseFontSize}px`;
-
-        // 텍스트가 컨테이너를 넘어가는지 확인
-        if (display.scrollWidth > displaySection.clientWidth) {
-            // 넘어간다면, 비율을 계산하여 폰트 크기를 줄임
-            const ratio = displaySection.clientWidth / display.scrollWidth;
-            const newSize = Math.floor(baseFontSize * ratio);
-            display.style.fontSize = `${newSize}px`;
-        }
-    };
-
     const updateDisplay = () => {
-        let displayValue;
-        if (isNaN(parseFloat(currentInput))) {
-            displayValue = currentInput;
-        } else {
-            if (currentInput.replace(/[-.]/g, '').length > 14 && currentInput.includes('e') === false) {
-                displayValue = parseFloat(currentInput).toExponential(8);
-            } else {
-                const [integer, decimal] = currentInput.split('.');
-                displayValue = `${parseFloat(integer).toLocaleString('en-US')}${decimal !== undefined ? `.${decimal}` : ''}`;
+        const MAX_DIGITS = 14;
+        let formattedInput = currentInput.toString();
+
+        // Handle scientific notation for very large/small numbers
+        if (formattedInput.includes('e')) {
+            formattedInput = 'Error'; // Or a more sophisticated display
+        }
+
+        // Truncate if longer than max digits (should be prevented by input handling, but as a safeguard)
+        if (formattedInput.replace(/[-.]/g, '').length > MAX_DIGITS) {
+             formattedInput = formattedInput.substring(0, MAX_DIGITS);
+        }
+        
+        const hasDecimal = formattedInput.includes('.');
+        const chars = formattedInput.replace('.', '').split('');
+        
+        let digitIndex = MAX_DIGITS - 1;
+        let charIndex = chars.length - 1;
+
+        // Clear all digits first
+        displayDigits.forEach(d => d.setAttribute('value', ' '));
+
+        while (digitIndex >= 0 && charIndex >= 0) {
+            let value = chars[charIndex];
+            
+            if (hasDecimal && charIndex === chars.length - (formattedInput.split('.')[1] || '').length - 1) {
+                 const digitToUpdate = displayDigits[digitIndex + 1];
+                 const currentValue = digitToUpdate.getAttribute('value');
+                 if(currentValue && currentValue !== ' ') {
+                    digitToUpdate.setAttribute('value', currentValue + '.');
+                 }
+            }
+            
+            displayDigits[digitIndex].setAttribute('value', value);
+            
+            digitIndex--;
+            charIndex--;
+        }
+        
+        // Handle the decimal point for the last integer digit
+        if (hasDecimal && formattedInput.endsWith('.')) {
+             displayDigits[MAX_DIGITS - 1].setAttribute('value', '.');
+        } else if (hasDecimal && charIndex === -1) { // Case like "123."
+            let intLength = formattedInput.split('.')[0].length;
+            const targetDigit = displayDigits[MAX_DIGITS - (chars.length - intLength) -1];
+            if (targetDigit) {
+                const val = targetDigit.getAttribute('value');
+                if (val && val !== ' ')
+                 targetDigit.setAttribute('value', val + '.');
             }
         }
-        display.textContent = displayValue;
-        adjustFontSize(); // 디스플레이 업데이트 후 폰트 크기 조절
 
         gtIndicator.style.opacity = grandTotal !== 0 ? '1' : '0';
         memoryIndicator.style.opacity = memory !== 0 ? '1' : '0';
@@ -161,9 +185,5 @@ document.addEventListener('DOMContentLoaded', () => {
         updateDisplay();
     });
 
-    // Initialize with font adjustment
     updateDisplay();
-    
-    // Resize event listener for responsive font size
-    window.addEventListener('resize', adjustFontSize);
 });
