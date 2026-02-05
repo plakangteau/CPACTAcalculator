@@ -16,61 +16,66 @@ document.addEventListener('DOMContentLoaded', () => {
         const MAX_DIGITS = 14;
         let output = currentInput.toString();
 
-        if (output.includes('e') || output.replace(/[-.]/g, '').length > MAX_DIGITS) {
-            output = 'Error';
-        }
-
         // Clear all digits first
         displayDigits.forEach(d => d.setAttribute('value', ' '));
 
-        let characters;
-        if (output === 'Error') {
-            characters = ['E', 'r', 'r', 'o', 'r'];
+        // Handle Error state
+        if (output.includes('e') || output.replace(/[-.]/g, '').length > MAX_DIGITS || output === 'Error') {
+            'Error'.split('').forEach((char, index) => {
+                if(displayDigits[index]) displayDigits[index].setAttribute('value', char);
+            });
+            errorIndicator.style.opacity = '1';
+            return;
         } else {
-            let [integerPart, decimalPart] = output.split('.');
-            
-            // Add commas to the integer part
-            integerPart = parseFloat(integerPart).toLocaleString('en-US');
-
-            let combined = integerPart;
-            if (decimalPart !== undefined) {
-                combined += '.' + decimalPart;
-            }
-             if (output.endsWith('.')) {
-                combined += '.';
-            }
-
-            characters = combined.split('');
+            errorIndicator.style.opacity = '0';
         }
 
+        const displayValues = Array(MAX_DIGITS).fill(' ');
         let digitIndex = MAX_DIGITS - 1;
-        for (let i = characters.length - 1; i >= 0; i--) {
+
+        let [integerPart, decimalPart] = output.split('.');
+        const hasDecimal = output.includes('.');
+
+        // 1. Process Decimal Part (from right to left)
+        if (decimalPart) {
+            for (let i = decimalPart.length - 1; i >= 0; i--) {
+                if (digitIndex < 0) break;
+                displayValues[digitIndex] = decimalPart[i];
+                digitIndex--;
+            }
+        }
+
+        // 2. Process Integer Part (from right to left)
+        let integerDigitCount = 0;
+        for (let i = integerPart.length - 1; i >= 0; i--) {
             if (digitIndex < 0) break;
 
-            let char = characters[i];
+            let value = integerPart[i];
 
-            if (char === '.' && i > 0) {
-                 const prevChar = characters[i-1];
-                 if(prevChar !== ',') {
-                    const targetDigit = displayDigits[digitIndex + 1];
-                    if(targetDigit) {
-                        targetDigit.setAttribute('value', prevChar + '.');
-                        i--; // Skip the previous character as it's now part of the decimal
-                    }
-                 } else {
-                     displayDigits[digitIndex].setAttribute('value', char);
-                 }
-            } else {
-                displayDigits[digitIndex].setAttribute('value', char);
+            // Add decimal point to the right of the last integer digit
+            if (integerDigitCount === 0 && hasDecimal) {
+                value += '.';
             }
+
+            // Add comma every 3 digits (after the first group)
+            if (integerDigitCount > 0 && integerDigitCount % 3 === 0 && value !== '-') {
+                value += ',';
+            }
+
+            displayValues[digitIndex] = value;
+            integerDigitCount++;
             digitIndex--;
         }
 
+        // 3. Render the final values to the display components
+        displayValues.forEach((value, index) => {
+            displayDigits[index].setAttribute('value', value);
+        });
+
         gtIndicator.style.opacity = grandTotal !== 0 ? '1' : '0';
         memoryIndicator.style.opacity = memory !== 0 ? '1' : '0';
-        errorIndicator.style.opacity = output === 'Error' ? '1' : '0';
     };
-
+    
     const calculate = () => {
         let result;
         const prev = parseFloat(previousInput);
@@ -97,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const showError = () => {
-        const originalInput = currentInput;
         currentInput = 'Error';
         updateDisplay();
         setTimeout(() => {

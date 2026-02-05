@@ -1,4 +1,3 @@
-
 class SevenSegmentDigit extends HTMLElement {
     constructor() {
         super();
@@ -25,6 +24,7 @@ class SevenSegmentDigit extends HTMLElement {
                 }
             </style>
             <svg viewBox="0 0 28 50" preserveAspectRatio="xMidYMid meet">
+                <!-- Segments for the digit -->
                 <rect class="segment a" x="4"  y="2"  width="18" height="5" rx="1"></rect>
                 <rect class="segment f" x="1"  y="5"  width="5"  height="19" rx="1"></rect>
                 <rect class="segment b" x="20" y="5"  width="5"  height="19" rx="1"></rect>
@@ -33,8 +33,11 @@ class SevenSegmentDigit extends HTMLElement {
                 <rect class="segment c" x="20" y="26" width="5"  height="19" rx="1"></rect>
                 <rect class="segment d" x="4"  y="43" width="18" height="5" rx="1"></rect>
                 
+                <!-- Decimal point (bottom right) -->
                 <circle class="segment decimal" cx="26" cy="46" r="2"></circle>
-                <path class="segment comma" d="M10 43 C 10 43, 6 48, 6 50 C 6 50, 10 50, 10 48 C 10 46, 10 43, 10 43 Z"></path>
+                
+                <!-- Comma (top right) -->
+                <rect class="segment comma" x="26" y="5" width="2" height="10" rx="1"></rect>
             </svg>
         `;
         this.shadowRoot.appendChild(template.content.cloneNode(true));
@@ -67,8 +70,6 @@ class SevenSegmentDigit extends HTMLElement {
             'E': ['a', 'f', 'g', 'e', 'd'],
             'r': ['e', 'g'],
             'o': ['c', 'd', 'e', 'g'],
-            '.': ['decimal'],
-            ',': ['comma'],
         };
     }
 
@@ -85,14 +86,27 @@ class SevenSegmentDigit extends HTMLElement {
     render(value) {
         // Turn all segments off first
         Object.values(this.segments).forEach(segment => segment.classList.remove('on'));
+        
+        if (!value) return;
 
-        // Turn on the correct segments for the given character
-        const segmentsOn = this.digitMap[value] || [];
-        segmentsOn.forEach(segmentKey => {
+        // The primary character for the digit shape
+        const digitChar = value.charAt(0);
+        
+        // Turn on the segments for the digit
+        const digitSegmentsOn = this.digitMap[digitChar] || [];
+        digitSegmentsOn.forEach(segmentKey => {
             if (this.segments[segmentKey]) {
                 this.segments[segmentKey].classList.add('on');
             }
         });
+
+        // Check for and turn on comma or decimal
+        if (value.includes('.')) {
+            this.segments.decimal.classList.add('on');
+        }
+        if (value.includes(',')) {
+            this.segments.comma.classList.add('on');
+        }
     }
 }
 
