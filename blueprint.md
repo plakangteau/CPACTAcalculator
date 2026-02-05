@@ -1,52 +1,52 @@
-# Casio JS-40B Web Calculator
+<!-- AI Development Guidelines for [Project Name] -->
 
-## Overview
+# Blueprint: 웹 계산기
 
-This project is a web-based calculator that emulates the functionality and design of the Casio JS-40B calculator. It is built using HTML, CSS, and JavaScript, following modern web development best practices. The user can perform standard arithmetic calculations, use memory functions, and calculate taxes. The calculator also features multiple color themes for personalization.
+## 개요
 
-## Features
+이 문서는 Firebase Studio 환경 내에서 개발되는 현대적인 웹 계산기 애플리케이션의 설계 및 개발 청사진을 정의합니다. 이 계산기는 프레임워크 없이 HTML, CSS, JavaScript의 최신 웹 표준(Baseline)을 사용하여 구축되며, Web Components를 활용한 모듈식 UI, 현대적인 CSS 스타일링, 그리고 순수 JavaScript로 구현된 핵심 로직을 특징으로 합니다.
 
-### Core Calculator Functions
-- **Basic Arithmetic:** Addition, subtraction, multiplication, and division.
-- **Number Input:** Digits 0-9 and a decimal point.
-- **Clear Functions:** `C` (Clear Entry) and `AC` (All Clear).
-- **Sign Change:** `+/-` button to toggle the sign of the current number.
-- **Percentage:** `%` button for percentage calculations.
-- **Square Root:** `√` button to calculate the square root.
-- **Backspace:** A correction key (`->`) to delete the last digit.
+## 디자인 및 기능 명세
 
-### Advanced Functions (JS-40B Specific)
-- **Memory Functions:**
-    - `M+`: Add the current display value to memory.
-    - `M-`: Subtract the current display value from memory.
-    - `MRC`: Recall the value from memory. A second press clears the memory.
-- **Tax Calculation:**
-    - `TAX+`: Add tax to the current value.
-    - `TAX-`: Subtract tax from the current value.
-    - `SET`: A button to allow the user to set a custom tax rate.
-- **Grand Total (GT):**
-    - `GT`: Calculates the grand total of all previous results.
+### 1. **시각적 디자인 (Aesthetics)**
 
-### Design & UI
-- **Visual Theme:** The calculator's design is inspired by the Casio JS-40B.
-- **Color Themes:** Users can choose between four color schemes:
-    - Light Pink
-    - Black
-    - White
-    - Sky Blue
-- **Responsive Design:** The layout adapts to different screen sizes, making it usable on both desktop and mobile devices.
-- **Modern Aesthetics:** The UI incorporates modern design elements like subtle shadows, clean typography, and a well-structured layout for a premium feel.
+- **레이아웃:** 반응형 5x6 그리드 레이아웃을 기반으로 하며, 데스크톱과 모바일 환경 모두에서 최적의 사용자 경험을 제공합니다.
+- **색상 팔레트:** 현대적이고 접근성 높은 색상 구성표를 사용합니다.
+- **타이포그래피:** 명확하고 읽기 쉬운 글꼴을 사용하여 숫자와 연산자를 표시합니다.
+- **인터랙션:** 버튼 클릭 시 시각적 피드백(크기 축소)을 제공하여 사용자 인터랙션을 명확히 합니다.
 
-## Current Plan
+### 2. **핵심 기능 (Features)**
 
-1.  **Structure (`index.html`):** Create the HTML layout for the calculator, including the display screen, all the buttons for numbers and functions, and the color theme selection controls.
-2.  **Styling (`style.css`):**
-    - Implement the visual design of the calculator, mimicking the Casio JS-40B.
-    - Create CSS variables for the four color themes (Light Pink, Black, White, Sky Blue).
-    - Add styles for a responsive layout and modern interactive elements.
-3.  **Logic (`main.js`):**
-    - Implement the full logic for all calculator functions using modern JavaScript (ES Modules, async/await where needed).
-    - Handle user input from all buttons.
-    - Manage the calculator's state (current number, previous number, operator, memory value, etc.).
-    - Implement the color theme switching functionality.
-4.  **Review and Refine:** Test the calculator thoroughly for bugs, ensure all features work as expected, and refine the UI/UX based on the development guidelines.
+- **기본 사칙연산:** 더하기, 빼기, 곱하기, 나누기 기능.
+- **숫자 입력:** 0-9 숫자 및 소수점 입력.
+- **연산자 표시:** 현재 활성화된 연산자를 디스플레이 상단에 표시합니다.
+- **메모리 기능:** MC, MR, M+, M-.
+- **Grand Total (GT):** GT 버튼으로 누적 합계를 계산합니다.
+- **수정 및 초기화:** `C`(Clear Entry)와 `AC`(All Clear)로 입력 내용을 지우고, `⌫`(Backspace)로 마지막 입력을 삭제합니다.
+- **기타 연산:** 백분율(%), 제곱근(√), 부호 변경(+/-) 기능.
+- **입력 제한:** 디스플레이에 최대 14자리까지만 입력되도록 제한합니다.
+- **오류 처리:** `0으로 나누기`와 같은 잘못된 연산 시 'E' 표시등으로 오류 상태를 알립니다.
+
+### 3. **기술 스택 및 구현**
+
+- **HTML:** 시맨틱 마크업과 Web Components 표준을 준수합니다.
+- **CSS:** 현대적인 CSS 기능(CSS 변수, Grid, Flexbox, 미디어 쿼리)을 사용하여 스타일과 레이아웃을 관리합니다.
+- **JavaScript:** ES 모듈과 최신 문법(Async/Await, 화살표 함수 등)을 사용하여 애플리케이션 로직을 구현합니다.
+
+---
+
+## 현재 작업 계획: 모바일 레이아웃 안정성 및 디스플레이 개선
+
+**목표:** 모바일 기기에서 숫자 입력 시 계산기 전체 크기가 변동하는 문제를 해결하고, 14자리 숫자가 디스플레이에 잘리지 않고 모두 표시되도록 개선합니다.
+
+**세부 실행 계획:**
+
+1.  **[완료] `index.html` 수정:**
+    -   `viewport` 메타 태그에 `user-scalable=no` 속성을 추가하여 모바일 브라우저에서 사용자의 확대/축소 기능을 비활성화합니다. 이는 의도치 않은 화면 크기 변경을 방지하여 일관된 레이아웃을 유지하는 데 도움이 됩니다.
+    -   버튼 그리드를 감싸는 `.button-section` `div`를 추가하여 디스플레이와 버튼 영역을 명확하게 분리하고, CSS Flexbox 레이아웃 적용을 용이하게 합니다.
+
+2.  **[완료] `style.css` 수정:**
+    -   **모바일 뷰포트 전체 높이 사용:** `@media (max-width: 480px)` 규칙 내에서 `.calculator`의 `height`를 `100vh`로 설정하여 뷰포트 전체 높이를 차지하도록 합니다.
+    -   **Flexbox 레이아웃 적용:** `.calculator`에 `display: flex`와 `flex-direction: column`을 적용하여 디스플레이 섹션과 버튼 섹션을 수직으로 배치하고, `.button-section`이 남은 공간을 모두 차지하도록(`flex-grow: 1`) 하여 버튼 그리드가 항상 화면 중앙에 안정적으로 위치하도록 합니다.
+    -   **반응형 폰트 크기:** `.display`의 `font-size`를 고정된 `px` 값 대신, 뷰포트 너비에 비례하는 `14vw`로 변경합니다. 이를 통해 화면 너비가 다른 다양한 모바일 기기에서도 14자리 숫자가 잘리거나 넘치지 않고 디스플레이에 꽉 차게 표시됩니다.
+    -   **텍스트 오버플로우 처리:** 디스플레이에서 숫자가 넘칠 경우 `...`으로 표시되는 대신 그냥 잘리도록 `text-overflow: clip;`으로 변경하여 더 많은 숫자를 볼 수 있도록 합니다.
