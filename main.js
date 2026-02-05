@@ -12,12 +12,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let grandTotal = 0;
     let shouldResetDisplay = false;
 
+    const formatNumber = (numStr) => {
+        if (typeof numStr !== 'string' || numStr.includes('e')) return numStr; 
+
+        const [integerPart, decimalPart] = numStr.split('.');
+        const formattedIntegerPart = parseFloat(integerPart).toLocaleString('en-US', { maximumFractionDigits: 0 });
+        
+        return decimalPart !== undefined ? `${formattedIntegerPart}.${decimalPart}` : formattedIntegerPart;
+    };
+
     const updateDisplay = () => {
-        // Limit display length to fit in the display area
-        if (currentInput.length > 16) {
-            currentInput = parseFloat(currentInput).toExponential(9);
+        let formattedInput = formatNumber(currentInput);
+        if (formattedInput.length > 16) {
+            formattedInput = parseFloat(currentInput).toExponential(9);
         }
-        display.textContent = currentInput;
+        display.textContent = formattedInput;
         memoryIndicator.style.opacity = memory !== 0 ? '1' : '0';
         gtIndicator.style.opacity = grandTotal !== 0 ? '1' : '0';
     };
@@ -33,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case '+': result = prev + current; break;
             case '-': result = prev - current; break;
             case 'X': result = prev * current; break;
-            case '/':
+            case '÷':
                 if (current === 0) {
                     showError();
                     return;
@@ -88,6 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentInput.length < 16) {
                  currentInput += key;
             }
+        } else if (keyClass.contains('decimal-btn')) {
+             if (shouldResetDisplay) {
+                currentInput = '0';
+                shouldResetDisplay = false;
+            }
+            if (!currentInput.includes('.')) {
+                currentInput += '.';
+            }
         } else if (keyClass.contains('operator-btn') && key !== '=') {
             if (operator && !shouldResetDisplay) {
                 calculate();
@@ -114,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentInput = (parseFloat(currentInput) / 100).toString();
             shouldResetDisplay = true;
         } else if (key === '지우기') {
+            if(currentInput === 'Error') return;
             if (currentInput.length > 1) {
                 currentInput = currentInput.slice(0, -1);
             } else {
