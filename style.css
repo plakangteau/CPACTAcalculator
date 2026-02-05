@@ -101,6 +101,10 @@ button:active {
     background-color: var(--function-bg);
 }
 
+.gt-btn {
+    font-size: 18px; /* Slightly smaller font size for GT */
+}
+
 .operator-btn {
     background-color: var(--operator-bg);
     color: var(--operator-text-color);

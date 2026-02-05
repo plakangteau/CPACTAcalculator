@@ -23,8 +23,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateDisplay = () => {
         let formattedInput = formatNumber(currentInput);
-        if (formattedInput.length > 16) {
-            formattedInput = parseFloat(currentInput).toExponential(9);
+        if (formattedInput.replace(/,/g, '').length > 14) {
+             if (parseFloat(currentInput) > 0) {
+                formattedInput = parseFloat(currentInput).toExponential(9);
+            } else {
+                // Handle cases where chopping the number is better than showing zero
+                const unformatted = currentInput.replace(/,/g, '');
+                formattedInput = formatNumber(unformatted.substring(0, 14));
+             }
         }
         display.textContent = formattedInput;
         memoryIndicator.style.opacity = memory !== 0 ? '1' : '0';
@@ -33,8 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const calculate = () => {
         let result;
-        const prev = parseFloat(previousInput);
-        const current = parseFloat(currentInput);
+        const prev = parseFloat(previousInput.replace(/,/g, ''));
+        const current = parseFloat(currentInput.replace(/,/g, ''));
 
         if (isNaN(prev) || isNaN(current)) return;
 
@@ -90,19 +96,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const keyClass = e.target.classList;
 
         if (keyClass.contains('number-btn')) {
-            if (currentInput === '0' || shouldResetDisplay) {
-                currentInput = '';
+            if (shouldResetDisplay) {
+                currentInput = '0';
                 shouldResetDisplay = false;
             }
-            if (currentInput.length < 16) {
-                 currentInput += key;
+            
+            const unformattedInput = currentInput.replace(/\.|,/g, '');
+            if (unformattedInput.length < 14) {
+                if (currentInput === '0') currentInput = key; 
+                else currentInput += key;
             }
         } else if (keyClass.contains('decimal-btn')) {
              if (shouldResetDisplay) {
                 currentInput = '0';
                 shouldResetDisplay = false;
             }
-            if (!currentInput.includes('.')) {
+            if (!currentInput.includes('.') && currentInput.length < 14) {
                 currentInput += '.';
             }
         } else if (keyClass.contains('operator-btn') && key !== '=') {
@@ -120,15 +129,15 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (key === 'C') {
             clearEntry();
         } else if (key === '√') {
-            const value = parseFloat(currentInput);
+            const value = parseFloat(currentInput.replace(/,/g, ''));
             if (value >= 0) {
                 currentInput = Math.sqrt(value).toString();
                 shouldResetDisplay = true;
             }
         } else if (key === '+/-') {
-            currentInput = (parseFloat(currentInput) * -1).toString();
+            currentInput = (parseFloat(currentInput.replace(/,/g, '')) * -1).toString();
         } else if (key === '%') {
-            currentInput = (parseFloat(currentInput) / 100).toString();
+            currentInput = (parseFloat(currentInput.replace(/,/g, '')) / 100).toString();
             shouldResetDisplay = true;
         } else if (key === '지우기') {
             if(currentInput === 'Error') return;
@@ -143,9 +152,9 @@ document.addEventListener('DOMContentLoaded', () => {
             currentInput = memory.toString();
             shouldResetDisplay = true;
         } else if (key === 'M+') {
-            memory += parseFloat(currentInput);
+            memory += parseFloat(currentInput.replace(/,/g, ''));
         } else if (key === 'M-') {
-            memory -= parseFloat(currentInput);
+            memory -= parseFloat(currentInput.replace(/,/g, ''));
         } else if (key === 'GT') {
             currentInput = grandTotal.toString();
             shouldResetDisplay = true;
