@@ -1,14 +1,66 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카시오 JS-40B 계산기</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+    <div class="calculator-wrapper">
+        <div class="theme-selector">
+            <button class="theme-btn" data-theme="light-pink" title="연분홍색"></button>
+            <button class="theme-btn" data-theme="black" title="검정색"></button>
+            <button class="theme-btn" data-theme="white" title="흰색"></button>
+            <button class="theme-btn" data-theme="sky-blue" title="하늘색"></button>
+        </div>
+        <div class="calculator">
+            <div class="display-section">
+                <div class="memory-indicator">M</div>
+                <div class="error-indicator">E</div>
+                <div class="gt-indicator">GT</div>
+                <div class="display">0</div>
+            </div>
+            <div class="button-grid">
+                <button class="function-btn">√</button>
+                <button class="function-btn">AC</button>
+                <button class="function-btn">C</button>
+                <button class="function-btn correction-btn">→</button>
+
+                <button class="function-btn">MRC</button>
+                <button class="function-btn">M-</button>
+                <button class="function-btn">M+</button>
+                <button class="operator-btn">/</button>
+
+                <button class="function-btn tax-btn">SET</button>
+                <button class="number-btn">7</button>
+                <button class="number-btn">8</button>
+                <button class="number-btn">9</button>
+                <button class="operator-btn">*</button>
+
+                <button class="function-btn tax-btn">TAX-</button>
+                <button class="number-btn">4</button>
+                <button class="number-btn">5</button>
+                <button class="number-btn">6</button>
+                <button class="operator-btn">-</button>
+
+                <button class="function-btn tax-btn">TAX+</button>
+                <button class="number-btn">1</button>
+                <button class="number-btn">2</button>
+                <button class="number-btn">3</button>
+                <button class="operator-btn">+</button>
+
+                <button class="function-btn">+/-</button>
+                <button class="number-btn">0</button>
+                <button class="number-btn">00</button>
+                <button class="number-btn">.</button>
+                <button class="operator-btn equal-btn">=</button>
+                
+                <button class="function-btn gt-btn">GT</button>
+                <button class="function-btn percent-btn">%</button>
+            </div>
+        </div>
+    </div>
+    <script src="main.js"></script>
 </body>
 </html>

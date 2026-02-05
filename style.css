@@ -1,1 +1,220 @@
-/* Add styles here */
+:root {
+    --bg-color-light-pink: #fce4ec; /* 연분홍 */
+    --calculator-bg-light-pink: #ffffff;
+    --display-bg-light-pink: #f1f8e9;
+    --text-color-light-pink: #333333;
+    --button-bg-light-pink: #f8bbd0;
+    --operator-bg-light-pink: #f48fb1;
+    --equal-bg-light-pink: #ec407a;
+    --function-bg-light-pink: #e1bee7;
+
+    --bg-color-black: #212121;
+    --calculator-bg-black: #424242;
+    --display-bg-black: #616161;
+    --text-color-black: #ffffff;
+    --button-bg-black: #757575;
+    --operator-bg-black: #9e9e9e;
+    --equal-bg-black: #fdd835;
+    --function-bg-black: #607d8b;
+
+    --bg-color-white: #f5f5f5;
+    --calculator-bg-white: #ffffff;
+    --display-bg-white: #e0e0e0;
+    --text-color-white: #000000;
+    --button-bg-white: #eeeeee;
+    --operator-bg-white: #bdbdbd;
+    --equal-bg-white: #42a5f5;
+    --function-bg-white: #90a4ae;
+
+    --bg-color-sky-blue: #e3f2fd;
+    --calculator-bg-sky-blue: #ffffff;
+    --display-bg-sky-blue: #bbdefb;
+    --text-color-sky-blue: #000000;
+    --button-bg-sky-blue: #90caf9;
+    --operator-bg-sky-blue: #64b5f6;
+    --equal-bg-sky-blue: #2196f3;
+    --function-bg-sky-blue: #81d4fa;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--bg-color);
+    transition: background-color 0.3s;
+}
+
+.calculator-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.theme-selector {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.theme-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    cursor: pointer;
+}
+
+.theme-btn[data-theme="light-pink"] { background-color: #fce4ec; }
+.theme-btn[data-theme="black"] { background-color: #424242; }
+.theme-btn[data-theme="white"] { background-color: #f5f5f5; }
+.theme-btn[data-theme="sky-blue"] { background-color: #e3f2fd; }
+
+.calculator {
+    width: 350px;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    background-color: var(--calculator-bg);
+    transition: background-color 0.3s;
+}
+
+.display-section {
+    background-color: var(--display-bg);
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    text-align: right;
+    position: relative;
+    overflow: hidden;
+}
+
+.display {
+    font-size: 48px;
+    font-weight: 300;
+    color: var(--text-color);
+    word-wrap: break-word;
+    word-break: break-all;
+    min-height: 60px;
+}
+
+.memory-indicator, .error-indicator, .gt-indicator {
+    position: absolute;
+    top: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text-color);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.memory-indicator { left: 10px; }
+.error-indicator { left: 30px; }
+.gt-indicator { left: 50px; }
+
+.button-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+button {
+    height: 60px;
+    border: none;
+    border-radius: 15px;
+    font-size: 22px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    color: var(--text-color);
+    background-color: var(--button-bg);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.operator-btn {
+    background-color: var(--operator-bg);
+}
+
+.equal-btn {
+    background-color: var(--equal-bg);
+    grid-column: span 2;
+}
+
+.function-btn {
+    background-color: var(--function-bg);
+}
+
+/* Theme application */
+body[data-theme='light-pink'] {
+    --bg-color: var(--bg-color-light-pink);
+    --calculator-bg: var(--calculator-bg-light-pink);
+    --display-bg: var(--display-bg-light-pink);
+    --text-color: var(--text-color-light-pink);
+    --button-bg: var(--button-bg-light-pink);
+    --operator-bg: var(--operator-bg-light-pink);
+    --equal-bg: var(--equal-bg-light-pink);
+    --function-bg: var(--function-bg-light-pink);
+}
+
+body[data-theme='black'] {
+    --bg-color: var(--bg-color-black);
+    --calculator-bg: var(--calculator-bg-black);
+    --display-bg: var(--display-bg-black);
+    --text-color: var(--text-color-black);
+    --button-bg: var(--button-bg-black);
+    --operator-bg: var(--operator-bg-black);
+    --equal-bg: var(--equal-bg-black);
+    --function-bg: var(--function-bg-black);
+}
+
+body[data-theme='white'] {
+    --bg-color: var(--bg-color-white);
+    --calculator-bg: var(--calculator-bg-white);
+    --display-bg: var(--display-bg-white);
+    --text-color: var(--text-color-white);
+    --button-bg: var(--button-bg-white);
+    --operator-bg: var(--operator-bg-white);
+    --equal-bg: var(--equal-bg-white);
+    --function-bg: var(--function-bg-white);
+}
+
+body[data-theme='sky-blue'] {
+    --bg-color: var(--bg-color-sky-blue);
+    --calculator-bg: var(--calculator-bg-sky-blue);
+    --display-bg: var(--display-bg-sky-blue);
+    --text-color: var(--text-color-sky-blue);
+    --button-bg: var(--button-bg-sky-blue);
+    --operator-bg: var(--operator-bg-sky-blue);
+    --equal-bg: var(--equal-bg-sky-blue);
+    --function-bg: var(--function-bg-sky-blue);
+}
+
+@media (max-width: 400px) {
+    .calculator {
+        width: 90%;
+    }
+
+    .button-grid {
+        gap: 10px;
+    }
+
+    button {
+        height: 55px;
+        font-size: 20px;
+    }
+
+    .display {
+        font-size: 40px;
+        min-height: 50px;
+    }
+}
