@@ -3,17 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>카시오 JS-40B 계산기</title>
+    <title>웹 계산기</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="calculator-wrapper">
-        <div class="theme-selector">
-            <button class="theme-btn" data-theme="light-pink" title="연분홍색"></button>
-            <button class="theme-btn" data-theme="black" title="검정색"></button>
-            <button class="theme-btn" data-theme="white" title="흰색"></button>
-            <button class="theme-btn" data-theme="sky-blue" title="하늘색"></button>
-        </div>
         <div class="calculator">
             <div class="display-section">
                 <div class="memory-indicator">M</div>
@@ -22,42 +16,46 @@
                 <div class="display">0</div>
             </div>
             <div class="button-grid">
-                <button class="function-btn">√</button>
-                <button class="function-btn">AC</button>
-                <button class="function-btn">C</button>
-                <button class="function-btn correction-btn">→</button>
-
-                <button class="function-btn">MRC</button>
-                <button class="function-btn">M-</button>
-                <button class="function-btn">M+</button>
-                <button class="operator-btn">/</button>
-
-                <button class="function-btn tax-btn">SET</button>
-                <button class="number-btn">7</button>
-                <button class="number-btn">8</button>
-                <button class="number-btn">9</button>
-                <button class="operator-btn">*</button>
-
-                <button class="function-btn tax-btn">TAX-</button>
-                <button class="number-btn">4</button>
-                <button class="number-btn">5</button>
-                <button class="number-btn">6</button>
-                <button class="operator-btn">-</button>
-
-                <button class="function-btn tax-btn">TAX+</button>
-                <button class="number-btn">1</button>
-                <button class="number-btn">2</button>
-                <button class="number-btn">3</button>
-                <button class="operator-btn">+</button>
-
-                <button class="function-btn">+/-</button>
-                <button class="number-btn">0</button>
-                <button class="number-btn">00</button>
-                <button class="number-btn">.</button>
-                <button class="operator-btn equal-btn">=</button>
+                <!-- Row 1 -->
+                <button class="function-btn" disabled></button> <!-- B11 (빈칸) -->
+                <button class="function-btn percent-btn">%</button> <!-- B12 -->
+                <button class="function-btn">√</button> <!-- B13 -->
+                <button class="function-btn correction-btn">지우기</button> <!-- B14 -->
+                <button class="function-btn gt-btn">GT</button> <!-- B15 -->
                 
-                <button class="function-btn gt-btn">GT</button>
-                <button class="function-btn percent-btn">%</button>
+                <!-- Row 2 -->
+                <button class="function-btn">MC</button> <!-- B21 -->
+                <button class="function-btn">MR</button> <!-- B22 -->
+                <button class="function-btn">M-</button> <!-- B23 -->
+                <button class="function-btn">M+</button> <!-- B24 -->
+                <button class="operator-btn">/</button> <!-- B25 -->
+                
+                <!-- Row 3 -->
+                <button class="function-btn">+/-</button> <!-- B31 -->
+                <button class="number-btn">7</button> <!-- B32 -->
+                <button class="number-btn">8</button> <!-- B33 -->
+                <button class="number-btn">9</button> <!-- B34 -->
+                <button class="operator-btn">X</button> <!-- B35 -->
+                
+                <!-- Row 4 -->
+                <button class="function-btn">C</button> <!-- B41 -->
+                <button class="number-btn">4</button> <!-- B42 -->
+                <button class="number-btn">5</button> <!-- B43 -->
+                <button class="number-btn">6</button> <!-- B44 -->
+                <button class="operator-btn">-</button> <!-- B45 -->
+                
+                <!-- Row 5 -->
+                <button class="function-btn">AC</button> <!-- B51 -->
+                <button class="number-btn">1</button> <!-- B52 -->
+                <button class="number-btn">2</button> <!-- B53 -->
+                <button class="number-btn">3</button> <!-- B54 -->
+                <button class="operator-btn plus-btn">+</button> <!-- B55 & B65 -->
+                
+                <!-- Row 6 -->
+                <button class="number-btn">0</button> <!-- B61 -->
+                <button class="number-btn">00</button> <!-- B62 -->
+                <button class="number-btn">.</button> <!-- B63 -->
+                <button class="operator-btn equal-btn">=</button> <!-- B64 -->
             </div>
         </div>
     </div>
