@@ -14,59 +14,61 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateDisplay = () => {
         const MAX_DIGITS = 14;
-        let formattedInput = currentInput.toString();
+        let output = currentInput.toString();
 
-        // Handle scientific notation for very large/small numbers
-        if (formattedInput.includes('e')) {
-            formattedInput = 'Error'; // Or a more sophisticated display
+        if (output.includes('e') || output.replace(/[-.]/g, '').length > MAX_DIGITS) {
+            output = 'Error';
         }
-
-        // Truncate if longer than max digits (should be prevented by input handling, but as a safeguard)
-        if (formattedInput.replace(/[-.]/g, '').length > MAX_DIGITS) {
-             formattedInput = formattedInput.substring(0, MAX_DIGITS);
-        }
-        
-        const hasDecimal = formattedInput.includes('.');
-        const chars = formattedInput.replace('.', '').split('');
-        
-        let digitIndex = MAX_DIGITS - 1;
-        let charIndex = chars.length - 1;
 
         // Clear all digits first
         displayDigits.forEach(d => d.setAttribute('value', ' '));
 
-        while (digitIndex >= 0 && charIndex >= 0) {
-            let value = chars[charIndex];
+        let characters;
+        if (output === 'Error') {
+            characters = ['E', 'r', 'r', 'o', 'r'];
+        } else {
+            let [integerPart, decimalPart] = output.split('.');
             
-            if (hasDecimal && charIndex === chars.length - (formattedInput.split('.')[1] || '').length - 1) {
-                 const digitToUpdate = displayDigits[digitIndex + 1];
-                 const currentValue = digitToUpdate.getAttribute('value');
-                 if(currentValue && currentValue !== ' ') {
-                    digitToUpdate.setAttribute('value', currentValue + '.');
-                 }
+            // Add commas to the integer part
+            integerPart = parseFloat(integerPart).toLocaleString('en-US');
+
+            let combined = integerPart;
+            if (decimalPart !== undefined) {
+                combined += '.' + decimalPart;
             }
-            
-            displayDigits[digitIndex].setAttribute('value', value);
-            
-            digitIndex--;
-            charIndex--;
+             if (output.endsWith('.')) {
+                combined += '.';
+            }
+
+            characters = combined.split('');
         }
-        
-        // Handle the decimal point for the last integer digit
-        if (hasDecimal && formattedInput.endsWith('.')) {
-             displayDigits[MAX_DIGITS - 1].setAttribute('value', '.');
-        } else if (hasDecimal && charIndex === -1) { // Case like "123."
-            let intLength = formattedInput.split('.')[0].length;
-            const targetDigit = displayDigits[MAX_DIGITS - (chars.length - intLength) -1];
-            if (targetDigit) {
-                const val = targetDigit.getAttribute('value');
-                if (val && val !== ' ')
-                 targetDigit.setAttribute('value', val + '.');
+
+        let digitIndex = MAX_DIGITS - 1;
+        for (let i = characters.length - 1; i >= 0; i--) {
+            if (digitIndex < 0) break;
+
+            let char = characters[i];
+
+            if (char === '.' && i > 0) {
+                 const prevChar = characters[i-1];
+                 if(prevChar !== ',') {
+                    const targetDigit = displayDigits[digitIndex + 1];
+                    if(targetDigit) {
+                        targetDigit.setAttribute('value', prevChar + '.');
+                        i--; // Skip the previous character as it's now part of the decimal
+                    }
+                 } else {
+                     displayDigits[digitIndex].setAttribute('value', char);
+                 }
+            } else {
+                displayDigits[digitIndex].setAttribute('value', char);
             }
+            digitIndex--;
         }
 
         gtIndicator.style.opacity = grandTotal !== 0 ? '1' : '0';
         memoryIndicator.style.opacity = memory !== 0 ? '1' : '0';
+        errorIndicator.style.opacity = output === 'Error' ? '1' : '0';
     };
 
     const calculate = () => {
@@ -95,12 +97,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const showError = () => {
+        const originalInput = currentInput;
         currentInput = 'Error';
-        errorIndicator.style.opacity = '1';
         updateDisplay();
         setTimeout(() => {
-            clearAll();
-            errorIndicator.style.opacity = '0';
+            if (currentInput === 'Error') { 
+                clearAll();
+                updateDisplay();
+            }
         }, 1500);
     };
 
@@ -136,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (keyClass.contains('number-btn')) {
             handleNumberInput(key);
         } else if (keyClass.contains('operator-btn') && !keyClass.contains('equal-btn')) {
+            if (currentInput === 'Error') return;
             if (operator && !shouldResetDisplay) calculate();
             previousInput = currentInput;
             operator = key;
@@ -143,13 +148,14 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (keyClass.contains('equal-btn')) {
             if (operator) {
                 calculate();
-                grandTotal += parseFloat(currentInput);
+                if (currentInput !== 'Error') grandTotal += parseFloat(currentInput);
             }
         } else if (key === 'AC') {
             clearAll();
             grandTotal = 0;
         } else if (key === 'C') {
             currentInput = '0';
+            shouldResetDisplay = false;
         } else if (key === '√') {
             const value = parseFloat(currentInput);
             if (value >= 0) {
@@ -157,7 +163,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 shouldResetDisplay = true;
             }
         } else if (key === '+/-') {
-            currentInput = (parseFloat(currentInput) * -1).toString();
+            if (currentInput !== '0') {
+                currentInput = (parseFloat(currentInput) * -1).toString();
+            }
         } else if (key === '%') {
             const baseValue = parseFloat(previousInput) || 1;
             const percentage = parseFloat(currentInput);
